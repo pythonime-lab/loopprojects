@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SQL Injection Prevention in WordPress - Loop Projects</title>
+    <meta
+      name="description"
+      content="Learn how to protect your WordPress sites from SQL Injection attacks."
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="../articles.js"></script>
+    <script src="../carousel.js"></script>
+    <script src="../header.js"></script>
+    <script src="../footer.js"></script>
+  </head>
+  <body>
+    <div class="bg-animation">
+      <div class="bg-circle"></div>
+      <div class="bg-circle"></div>
+    </div>
+
+    <script>
+      document.write(createHeader(true));
+    </script>
+
+    <article>
+      <header class="article-header">
+        <h1>SQL Injection Prevention in WordPress</h1>
+
+        <div class="article-metadata">
+          <div class="metadata-item">
+            <span>Date:</span>
+            <span>2026.1.25</span>
+          </div>
+          <div class="metadata-item">
+            <span>Reading time:</span>
+            <span>10 min read</span>
+          </div>
+        </div>
+
+        <div class="article-tags">
+          <span class="article-tag">WordPress Security</span>
+          <span class="article-tag">SQL Injection</span>
+          <span class="article-tag">Database Security</span>
+        </div>
+
+        <div class="share-buttons">
+          <a href="#" class="share-button">Twitter/X</a>
+          <a href="#" class="share-button">LinkedIn</a>
+        </div>
+      </header>
+
+      <div class="article-content">
+        <h2>Understanding SQL Injection Attacks</h2>
+
+        <p>
+          SQL Injection is one of the most dangerous and common web
+          vulnerabilities, consistently ranking in the OWASP Top 10. It occurs
+          when an attacker inserts malicious SQL code into input fields,
+          allowing them to manipulate database queries. In WordPress sites, this
+          can lead to data theft, unauthorized access, or complete database
+          compromise. Understanding how to prevent SQL injection is critical for
+          protecting your WordPress installation and user data.
+        </p>
+
+        <div class="warning-box">
+          <strong>Critical Warning:</strong> SQL Injection can allow attackers
+          to read sensitive data, modify database contents, execute
+          administrative operations, and even gain system-level access. Always
+          use prepared statements and never trust user input.
+        </div>
+
+        <h2>How SQL Injection Works</h2>
+
+        <h3>Classic SQL Injection Example</h3>
+        <p>
+          Consider a simple login form that checks credentials against a
+          database. A vulnerable query might look like this:
+        </p>
+
+        <pre><code>// VULNERABLE - WordPress example
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+// DANGEROUS: Direct string concatenation
+$query = "SELECT * FROM wp_users WHERE user_login = '$username' AND user_pass = '$password'";
+$result = $wpdb->query($query);</code></pre>
+
+        <p>
+          An attacker could enter <code>' OR '1'='1</code> as the username,
+          causing the query to become:
+        </p>
+
+        <pre><code>SELECT * FROM wp_users WHERE user_login = '' OR '1'='1' AND user_pass = ''</code></pre>
+
+        <p>
+          This bypasses authentication entirely because <code>'1'='1'</code> is
+          always true.
+        </p>
+
+        <h3>Advanced SQL Injection Techniques</h3>
+
+        <ul>
+          <li>
+            <strong>Union-based:</strong> Extract data by combining results with
+            legitimate queries
+          </li>
+          <li>
+            <strong>Time-based blind:</strong> Infer data through response
+            delays
+          </li>
+          <li>
+            <strong>Boolean-based blind:</strong> Determine truth values through
+            conditional responses
+          </li>
+          <li>
+            <strong>Stacked queries:</strong> Execute multiple SQL statements
+          </li>
+          <li>
+            <strong>Out-of-band:</strong> Exfiltrate data through DNS or HTTP
+            requests
+          </li>
+        </ul>
+
+        <h2>WordPress-Specific Prevention</h2>
+
+        <h3>Use WordPress Prepared Statements</h3>
+        <p>
+          WordPress's <code>$wpdb</code> object provides the
+          <code>prepare()</code>
+          method for safe database queries. Always use placeholders:
+        </p>
+
+        <pre><code>// SAFE - Using $wpdb->prepare()
+global $wpdb;
+
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+// Use %s for strings, %d for integers, %f for floats
+$query = $wpdb->prepare(
+    "SELECT * FROM $wpdb->users WHERE user_login = %s AND user_pass = %s",
+    $username,
+    $password
+);
+
+$result = $wpdb->get_results($query);</code></pre>
+
+        <h3>Use WordPress Query Methods</h3>
+        <p>
+          WordPress provides helper methods that automatically sanitize queries:
+        </p>
+
+        <pre><code>// Safe query using WordPress methods
+global $wpdb;
+
+$post_id = $_GET['id'];
+
+// get_results() with placeholders
+$results = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT * FROM $wpdb->posts WHERE ID = %d",
+        $post_id
+    )
+);
+
+// get_var() for single values
+$count = $wpdb->get_var(
+    $wpdb->prepare(
+        "SELECT COUNT(*) FROM $wpdb->posts WHERE post_author = %d",
+        get_current_user_id()
+    )
+);
+
+// get_row() for single row
+$post = $wpdb->get_row(
+    $wpdb->prepare(
+        "SELECT * FROM $wpdb->posts WHERE post_name = %s",
+        $post_slug
+    )
+);</code></pre>
+
+        <div class="info-box">
+          <strong>Best Practice:</strong> Always use
+          <code>$wpdb->prepare()</code>
+          for any query containing user input. This is the gold standard in
+          WordPress security.
+        </div>
+
+        <h3>Placeholder Types in WordPress</h3>
+
+        <pre><code>// Different placeholder types
+%d  // Integer
+%f  // Float
+%s  // String
+
+// Example with mixed types
+$results = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT * FROM $wpdb->posts 
+         WHERE post_author = %d 
+         AND post_title LIKE %s 
+         AND post_date > %s",
+        $author_id,
+        '%' . $wpdb->esc_like($search) . '%',
+        $date
+    )
+);</code></pre>
+
+        <h3>Escaping Output from Queries</h3>
+        <p>
+          After retrieving data from the database, always escape it before
+          displaying:
+        </p>
+
+        <pre><code>// Retrieve and escape
+$user_data = $wpdb->get_row(
+    $wpdb->prepare(
+        "SELECT * FROM $wpdb->users WHERE ID = %d",
+        $user_id
+    )
+);
+
+// Safe output
+echo esc_html($user_data->user_login);
+echo esc_attr($user_data->user_email);
+echo esc_url($user_data->user_url);</code></pre>
+
+        <h3>Avoiding Custom Table Prefixes</h3>
+        <p>
+          Always use the <code>$wpdb</code> prefix variable to handle table
+          names:
+        </p>
+
+        <pre><code>// WRONG - Hardcoded table name
+$results = $wpdb->get_results("SELECT * FROM wp_posts WHERE ID = 1");
+
+// CORRECT - Uses dynamic prefix
+$results = $wpdb->get_results(
+    "SELECT * FROM $wpdb->posts WHERE ID = 1"
+);</code></pre>
+
+        <h2>WordPress Plugin Development Security</h2>
+
+        <h3>Securing Custom Post Type Queries</h3>
+
+        <pre><code>// Plugin: Custom post type with secure queries
+class SecurityPlugin {
+    public function get_custom_posts($author_id) {
+        global $wpdb;
+        
+        // Validate input
+        $author_id = absint($author_id);
+        if ($author_id <= 0) {
+            return [];
+        }
+        
+        // Safe query
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT ID, post_title, post_excerpt 
+                 FROM $wpdb->posts 
+                 WHERE post_author = %d 
+                 AND post_type = %s 
+                 AND post_status = %s",
+                $author_id,
+                'security_article',
+                'publish'
+            )
+        );
+    }
+}
+</code></pre>
+
+        <h3>Handling Search Queries Safely</h3>
+
+        <pre><code>// Safe search implementation
+function secure_search($search_term) {
+    global $wpdb;
+    
+    // Sanitize search input
+    $search_term = sanitize_text_field($search_term);
+    
+    // Limit search term length
+    if (strlen($search_term) > 100) {
+        return [];
+    }
+    
+    // Use LIKE with prepared statement
+    // esc_like() escapes wildcards
+    return $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT * FROM $wpdb->posts 
+             WHERE (post_title LIKE %s OR post_content LIKE %s)
+             AND post_status = %s",
+            '%' . $wpdb->esc_like($search_term) . '%',
+            '%' . $wpdb->esc_like($search_term) . '%',
+            'publish'
+        )
+    );
+}</code></pre>
+
+        <h2>Testing for SQL Injection</h2>
+
+        <h3>Common Test Payloads</h3>
+
+        <pre><code>// Basic authentication bypass
+' OR '1'='1
+' OR 1=1 --
+admin' --
+' OR 'a'='a
+
+// UNION-based extraction
+' UNION SELECT NULL, NULL, NULL --
+' UNION SELECT user_login, user_pass, user_email FROM wp_users --
+
+// Time-based blind
+' AND SLEEP(5) --
+' AND IF(1=1, SLEEP(5), 0) --
+
+// Boolean-based blind
+' AND '1'='1
+' AND '1'='2</code></pre>
+
+        <h3>Testing Checklist</h3>
+
+        <ul>
+          <li>Test all form inputs (search, login, filters, etc.)</li>
+          <li>Test URL parameters (?id=1, ?page=1)</li>
+          <li>Test custom post type queries</li>
+          <li>Test plugin custom fields</li>
+          <li>Test contact form submissions</li>
+          <li>Use automated scanners like SQLmap (with permission)</li>
+        </ul>
+
+        <h2>Common Mistakes to Avoid</h2>
+
+        <ul>
+          <li>
+            <strong>Direct string concatenation:</strong> Never build queries by
+            concatenating user input
+          </li>
+          <li>
+            <strong>Over-reliance on escaping:</strong> Escaping alone is not
+            enough; use prepared statements
+          </li>
+          <li>
+            <strong>Forgetting to validate input types:</strong> Always check if
+            input is an integer when expecting one
+          </li>
+          <li>
+            <strong>Storing passwords in plaintext:</strong> Use WordPress's
+            <code>wp_hash_password()</code>
+          </li>
+          <li>
+            <strong>Trusting user input:</strong> Never assume user input is
+            safe
+          </li>
+          <li>
+            <strong>Error messages leaking information:</strong> Don't display
+            raw database errors to users
+          </li>
+        </ul>
+
+        <h2>Conclusion</h2>
+
+        <p>
+          SQL Injection remains one of the most critical web vulnerabilities. In
+          WordPress, always use <code>$wpdb->prepare()</code> for any query
+          containing user input. For static sites with database access, use your
+          framework's parameterized query system. Combine prepared statements
+          with input validation and output escaping for defense-in-depth
+          protection.
+        </p>
+
+        <p>
+          Security is a mindset. Make it a habit to always validate input, use
+          prepared statements, and regularly test your code for vulnerabilities.
+          Your users' data depends on it.
+        </p>
+      </div>
+
+      <div class="resources-section">
+        <h3>Additional Resources</h3>
+        <ul class="resources-list">
+          <li>
+            <a
+              href="https://developer.wordpress.org/apis/security/"
+              target="_blank"
+              >WordPress Security APIs - Official Documentation</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://wordpress.org/support/article/hardening-wordpress/"
+              target="_blank"
+              >WordPress Codex - Hardening WordPress</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://owasp.org/www-community/attacks/SQL_Injection"
+              target="_blank"
+              >OWASP SQL Injection Documentation</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+              target="_blank"
+              >OWASP SQL Injection Prevention Cheat Sheet</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Glossary/SQL_Injection"
+              target="_blank"
+              >MDN Web Docs - SQL Injection</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <h2>Latest Articles</h2>
+        <div class="carousel-wrapper">
+          <div class="articles-carousel" id="relatedCarousel">
+            <!-- Generated by JavaScript from articles.js -->
+          </div>
+          <span class="pixel-rain left" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+          <span class="pixel-rain right" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+        </div>
+        <div class="carousel-nav">
+          <button class="carousel-nav-btn prev" onclick="scrollCarousel(-1)">
+            ←
+          </button>
+          <button class="carousel-nav-btn next" onclick="scrollCarousel(1)">
+            →
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <script>
+      document.write(createFooter(true));
+    </script>
+
+    <script>
+      initializeArticleCarousel();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XSS Prevention in WordPress - Loop Projects</title>
+    <meta
+      name="description"
+      content="Learn how to protect your WordPress sites from Cross-Site Scripting attacks."
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="../articles.js"></script>
+    <script src="../carousel.js"></script>
+    <script src="../header.js"></script>
+    <script src="../footer.js"></script>
+  </head>
+  <body>
+    <div class="bg-animation">
+      <div class="bg-circle"></div>
+      <div class="bg-circle"></div>
+    </div>
+
+    <script>
+      document.write(createHeader(true));
+    </script>
+
+    <article>
+      <header class="article-header">
+        <h1>XSS Prevention in WordPress</h1>
+
+        <div class="article-metadata">
+          <div class="metadata-item">
+            <span>Date:</span>
+            <span>2026.1.28</span>
+          </div>
+          <div class="metadata-item">
+            <span>Reading time:</span>
+            <span>8 min read</span>
+          </div>
+        </div>
+
+        <div class="article-tags">
+          <span class="article-tag">WordPress Security</span>
+          <span class="article-tag">XSS</span>
+        </div>
+
+        <div class="share-buttons">
+          <a href="#" class="share-button">Twitter/X</a>
+          <a href="#" class="share-button">LinkedIn</a>
+        </div>
+      </header>
+
+      <div class="article-content">
+        <h2>Understanding Cross-Site Scripting (XSS) in WordPress</h2>
+
+        <p>
+          Cross-Site Scripting (XSS) is one of the most common web security
+          vulnerabilities, affecting WordPress sites, plugins, and themes. It
+          occurs when an attacker injects malicious scripts into web pages
+          viewed by other users. In WordPress, this often happens through
+          vulnerable plugins, themes, or improper handling of user input in
+          custom code.
+        </p>
+
+        <div class="warning-box">
+          <strong>Critical Warning:</strong> WordPress's popularity makes it a
+          prime target for attackers. Always keep WordPress core, plugins, and
+          themes updated, and never trust user input without proper sanitization
+          and escaping.
+        </div>
+
+        <h2>Types of XSS Attacks in WordPress</h2>
+
+        <h3>1. Reflected XSS</h3>
+        <p>
+          Reflected XSS in WordPress commonly occurs in search functionality,
+          custom query parameters, or poorly coded plugins that echo user input
+          without sanitization. The malicious script is "reflected" back in the
+          response without being stored.
+        </p>
+
+        <pre><code>// Vulnerable WordPress code example
+// In a custom plugin or theme function
+function display_search_results() {
+    $search_term = $_GET['s'];
+    echo "&lt;h2&gt;Results for: " . $search_term . "&lt;/h2&gt;";
+}
+
+// Attack URL:
+// https://yoursite.com/?s=&lt;script&gt;alert('XSS')&lt;/script&gt;</code></pre>
+
+        <h3>2. Stored XSS</h3>
+        <p>
+          Stored XSS is particularly dangerous in WordPress because malicious
+          scripts can be saved in the database through comments, post content,
+          custom fields, or plugin settings. Every user who views the affected
+          content will execute the malicious script. Common vulnerable areas
+          include comment sections, user profiles, and custom post types.
+        </p>
+
+        <h3>3. DOM-based XSS</h3>
+        <p>
+          DOM-based XSS occurs entirely in client-side JavaScript. If your
+          WordPress theme or plugins use JavaScript to process user input
+          improperly, they can be vulnerable. This is common with search
+          features, AJAX requests, or URL parameter handling.
+        </p>
+
+        <h2>WordPress-Specific Prevention Strategies</h2>
+
+        <h3>Use WordPress Sanitization and Escaping Functions</h3>
+        <p>
+          WordPress provides built-in functions for sanitizing input and
+          escaping output. Always use these functions instead of creating your
+          own:
+        </p>
+
+        <pre><code>// SANITIZATION (when saving to database)
+$clean_input = sanitize_text_field( $_POST['user_input'] );
+$clean_email = sanitize_email( $_POST['email'] );
+$clean_url = esc_url_raw( $_POST['website'] );
+$clean_textarea = sanitize_textarea_field( $_POST['message'] );
+
+// ESCAPING (when outputting to HTML)
+echo esc_html( $user_data ); // For HTML content
+echo esc_attr( $field_value ); // For HTML attributes
+echo esc_url( $link ); // For URLs
+echo esc_js( $js_variable ); // For inline JavaScript
+
+// Example in a WordPress template
+&lt;div class="user-comment"&gt;
+    &lt;h3&gt;&lt;?php echo esc_html( $comment_author ); ?&gt;&lt;/h3&gt;
+    &lt;p&gt;&lt;?php echo esc_html( $comment_text ); ?&gt;&lt;/p&gt;
+    &lt;a href="&lt;?php echo esc_url( $author_url ); ?&gt;"&gt;
+        Visit Website
+    &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="info-box">
+          <strong>Pro Tip:</strong> Remember: Sanitize on input (when saving
+          data), escape on output (when displaying data). Different contexts
+          require different escaping functions.
+        </div>
+
+        <h3>Content Security Policy (CSP)</h3>
+        <p>
+          Implementing a Content Security Policy helps prevent XSS attacks in
+          WordPress. You can add CSP headers through your theme's functions.php
+          or via a security plugin:
+        </p>
+
+        <pre><code>// Add to functions.php in your WordPress theme
+function add_security_headers() {
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://trusted-cdn.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;");
+}
+add_action('send_headers', 'add_security_headers');
+
+// Or via .htaccess for Apache servers
+// &lt;IfModule mod_headers.c&gt;
+//     Header set Content-Security-Policy "default-src 'self';"
+// &lt;/IfModule&gt;</code></pre>
+
+        <h3>Validate and Sanitize Custom Fields</h3>
+        <p>
+          When working with Advanced Custom Fields (ACF) or custom meta fields,
+          always sanitize and escape appropriately:
+        </p>
+
+        <pre><code>// Saving custom field data (sanitize input)
+update_post_meta(
+    $post_id,
+    'custom_field',
+    sanitize_text_field( $_POST['custom_field'] )
+);
+
+// Displaying custom field data (escape output)
+$custom_value = get_post_meta( $post_id, 'custom_field', true );
+echo '&lt;div&gt;' . esc_html( $custom_value ) . '&lt;/div&gt;';
+
+// For URLs
+$website = get_post_meta( $post_id, 'website_url', true );
+echo '&lt;a href="' . esc_url( $website ) . '"&gt;Visit Site&lt;/a&gt;';</code></pre>
+
+        <h3>Secure Comment Handling</h3>
+        <p>
+          Comments are a common XSS vector in WordPress. Use proper escaping
+          when displaying comment content:
+        </p>
+
+        <pre><code>// In comments template
+&lt;div class="comment-content"&gt;
+    &lt;?php 
+    // WordPress automatically escapes comment_text() 
+    // when using wp_kses_post()
+    echo wp_kses_post( get_comment_text() ); 
+    ?&gt;
+&lt;/div&gt;
+
+&lt;div class="comment-author"&gt;
+    &lt;?php echo esc_html( get_comment_author() ); ?&gt;
+&lt;/div&gt;</code></pre>
+
+        <h2>WordPress Plugin and Theme Security</h2>
+
+        <h3>Choosing Secure Plugins</h3>
+        <p>
+          Many XSS vulnerabilities come from third-party plugins. Follow these
+          guidelines:
+        </p>
+
+        <ul>
+          <li>
+            Only install plugins from trusted sources (WordPress.org repository,
+            reputable developers)
+          </li>
+          <li>Check plugin last update date - avoid abandoned plugins</li>
+          <li>Review plugin ratings and active installations</li>
+          <li>Keep all plugins updated to latest versions</li>
+          <li>Remove unused plugins completely (don't just deactivate)</li>
+          <li>Use security plugins like Wordfence or Sucuri for monitoring</li>
+        </ul>
+
+        <h3>Nonce Verification</h3>
+        <p>
+          Always use WordPress nonces to verify that requests come from
+          legitimate sources:
+        </p>
+
+        <pre><code>// Creating a nonce
+wp_nonce_field( 'save_custom_data', 'custom_nonce' );
+
+// Verifying the nonce
+if ( ! isset( $_POST['custom_nonce'] ) || 
+     ! wp_verify_nonce( $_POST['custom_nonce'], 'save_custom_data' ) ) {
+    wp_die( 'Security check failed' );
+}
+
+// Process the form
+$clean_data = sanitize_text_field( $_POST['field_name'] );
+update_option( 'my_option', $clean_data );</code></pre>
+
+        <h2>Testing for XSS Vulnerabilities</h2>
+        <p>
+          Regular security testing is crucial. Test these areas in WordPress:
+        </p>
+
+        <pre><code>// Test payloads for WordPress
+// In search boxes:
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+
+// In comment forms:
+&lt;img src=x onerror=alert('XSS')&gt;
+
+// In custom fields:
+&lt;svg onload=alert('XSS')&gt;
+
+// In URL parameters:
+?custom_param=&lt;script&gt;alert('XSS')&lt;/script&gt;
+
+// Advanced payloads:
+&lt;iframe src="javascript:alert('XSS')"&gt;
+&lt;input onfocus=alert('XSS') autofocus&gt;</code></pre>
+
+        <h2>Conclusion</h2>
+        <p>
+          Securing WordPress sites from XSS attacks requires vigilance and
+          proper use of built-in security functions. Always use sanitize_*
+          functions for input and esc_* functions for output. Keep WordPress
+          core, plugins, and themes updated regularly to patch security
+          vulnerabilities.
+        </p>
+
+        <p>
+          Remember: WordPress provides powerful tools for security, but they
+          only work if you use them. Make security a habit in your development
+          workflow, and regularly audit your sites for vulnerabilities.
+        </p>
+      </div>
+
+      <div class="resources-section">
+        <h3>Additional Resources</h3>
+        <ul class="resources-list">
+          <li>
+            <a
+              href="https://developer.wordpress.org/apis/security/"
+              target="_blank"
+              >WordPress Security APIs - Official Documentation</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://wordpress.org/support/article/hardening-wordpress/"
+              target="_blank"
+              >WordPress Codex - Hardening WordPress</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://owasp.org/www-community/attacks/xss/"
+              target="_blank"
+              >OWASP XSS Prevention Cheat Sheet</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
+              target="_blank"
+              >MDN Web Docs - Content Security Policy</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <h2>Latest Articles</h2>
+        <div class="carousel-wrapper">
+          <div class="articles-carousel" id="relatedCarousel">
+            <!-- Generated by JavaScript from articles.js -->
+          </div>
+          <span class="pixel-rain left" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+          <span class="pixel-rain right" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+        </div>
+        <div class="carousel-nav">
+          <button class="carousel-nav-btn prev" onclick="scrollCarousel(-1)">
+            ←
+          </button>
+          <button class="carousel-nav-btn next" onclick="scrollCarousel(1)">
+            →
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <script>
+      document.write(createFooter(true));
+    </script>
+
+    <script>
+      initializeArticleCarousel();
+    </script>
+  </body>
+</html>

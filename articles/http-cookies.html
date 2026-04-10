@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What Are Cookies? A Basic Guide - Loop Projects</title>
+    <meta
+      name="description"
+      content="Learn what HTTP cookies are, how they work, and why websites use them. Understand session, persistent, and third-party cookies."
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="../articles.js"></script>
+    <script src="../carousel.js"></script>
+    <script src="../header.js"></script>
+    <script src="../footer.js"></script>
+  </head>
+  <body>
+    <div class="bg-animation">
+      <div class="bg-circle"></div>
+      <div class="bg-circle"></div>
+    </div>
+
+    <script>
+      document.write(createHeader(true));
+    </script>
+
+    <article>
+      <header class="article-header">
+        <h1>What Are Cookies? A Basic Guide</h1>
+
+        <div class="article-metadata">
+          <div class="metadata-item">
+            <span>Date:</span>
+            <span>2026.2.03</span>
+          </div>
+          <div class="metadata-item">
+            <span>Reading time:</span>
+            <span>6 min read</span>
+          </div>
+        </div>
+
+        <div class="article-tags">
+          <span class="article-tag">Web Security</span>
+          <span class="article-tag">Cookies</span>
+          <span class="article-tag">Privacy</span>
+        </div>
+
+        <div class="share-buttons">
+          <a href="#" class="share-button">Twitter/X</a>
+          <a href="#" class="share-button">LinkedIn</a>
+        </div>
+      </header>
+
+      <div class="article-content">
+        <h2>What Is a Cookie?</h2>
+
+        <p>
+          An HTTP cookie (also called a web cookie or browser cookie) is a small
+          text file that a website sends to your web browser. The browser may
+          store cookies, create new cookies, modify existing ones, and send them
+          back to the same server with later requests. These files typically
+          contain small amounts of data about your activity on a website.
+        </p>
+
+        <h2>How Do Cookies Work?</h2>
+
+        <p>The process is straightforward:</p>
+
+        <ul>
+          <li>
+            <strong>You visit a website</strong> - When you first visit a site,
+            the web server generates a cookie.
+          </li>
+          <li>
+            <strong>The cookie is sent to your browser</strong> - The web server
+            sends the cookie to the client (your browser), which stores it on
+            your computer.
+          </li>
+          <li>
+            <strong>Your browser stores it</strong> - The cookie file is saved
+            in your browser's storage.
+          </li>
+          <li>
+            <strong>It's sent back with future requests</strong> - The browser
+            then sends cookies back to the server with every request, allowing
+            the website to recognize you on return visits.
+          </li>
+        </ul>
+
+        <h2>Why Do Websites Use Cookies?</h2>
+
+        <p>Cookies serve three main purposes:</p>
+
+        <h3>Session Management</h3>
+        <p>
+          Cookies provide secured interaction between users and app servers,
+          handling things like logins, auto-fill features, and shopping carts.
+          Without cookies, you'd have to log in again every time you clicked to
+          a new page.
+        </p>
+
+        <h3>Personalization</h3>
+        <p>
+          Cookies remember your preferences. If a user logs out of a shopping
+          website, their username can be stored in a cookie, and next time they
+          load that website, it prompts them to log in with the username they
+          used last time. Language settings, theme choices, and other
+          preferences are stored this way.
+        </p>
+
+        <h3>Tracking</h3>
+        <p>
+          Some cookies record what websites users visit, and this information is
+          sent to the server that originated the cookie the next time the
+          browser has to load content from that server. This helps websites
+          understand user behavior and can be used for analytics or advertising.
+        </p>
+
+        <h2>Types of Cookies</h2>
+
+        <h3>Session Cookies</h3>
+        <p>
+          These are deleted after a user's session ends—once they log out of
+          their account on a website or exit the website. They're temporary and
+          help manage your current browsing session.
+        </p>
+
+        <h3>Persistent Cookies</h3>
+        <p>
+          These remain in a user's browser for a predetermined length of time,
+          which could be a day, a week, several months, or even years. They
+          remember your preferences across multiple visits.
+        </p>
+
+        <h3>Third-Party Cookies</h3>
+        <p>
+          These are set by a different domain than the one the user is visiting
+          and are typically loaded through embedded content like advertisements,
+          social media widgets, or analytics scripts.
+        </p>
+
+        <h2>Key Facts About Cookies</h2>
+
+        <ul>
+          <li>
+            <strong>Size:</strong> Browsers are generally limited to a maximum
+            size per cookie, usually 4KB.
+          </li>
+          <li>
+            <strong>HTTP is Stateless:</strong> Without cookies, each retrieval
+            of a web page would be an isolated event, largely unrelated to all
+            other page views made by the user on the website. Cookies add memory
+            to an otherwise memoryless protocol.
+          </li>
+          <li>
+            <strong>Browser Control:</strong> Most modern browsers allow you to
+            view, manage, and delete cookies through their settings.
+          </li>
+        </ul>
+
+        <h2>Privacy Considerations</h2>
+
+        <p>
+          Many users do not want their online behavior to be tracked, and users
+          also lack visibility or control over what tracking services do with
+          the data they collect. Some privacy laws, such as the EU's ePrivacy
+          Directive, require websites to obtain user consent before using
+          certain types of cookies.
+        </p>
+
+        <div class="warning-box">
+          <strong>Privacy Tip:</strong> Review your browser's privacy settings
+          and consider using privacy modes or cookie management tools to control
+          which cookies are stored and transmitted.
+        </div>
+      </div>
+
+      <div class="resources-section">
+        <h3>Additional Resources</h3>
+        <ul class="resources-list">
+          <li>
+            <a href="https://en.wikipedia.org/wiki/HTTP_cookie" target="_blank"
+              >Wikipedia - HTTP Cookie</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://brightdata.com/blog/web-data/http-cookies"
+              target="_blank"
+              >Bright Data - What Are HTTP Cookies and How Do They Work?</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies"
+              target="_blank"
+              >Mozilla Developer Network (MDN) - Using HTTP Cookies</a
+            >
+          </li>
+          <li>
+            <a href="https://www.educative.io/blog/http-cookies" target="_blank"
+              >Educative.io - What are HTTP cookies?</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.cloudflare.com/learning/privacy/what-are-cookies/"
+              target="_blank"
+              >Cloudflare - What are cookies?</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://sumontasaha80.medium.com/basic-things-about-http-cookies-1c1290f31f7b"
+              target="_blank"
+              >Medium - Basic Things About HTTP Cookies and How It Works</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <h2>Latest Articles</h2>
+        <div class="carousel-wrapper">
+          <div class="articles-carousel" id="relatedCarousel">
+            <!-- Generated by JavaScript from articles.js -->
+          </div>
+          <span class="pixel-rain left" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+          <span class="pixel-rain right" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+        </div>
+        <div class="carousel-nav">
+          <button class="carousel-nav-btn prev" onclick="scrollCarousel(-1)">
+            ←
+          </button>
+          <button class="carousel-nav-btn next" onclick="scrollCarousel(1)">
+            →
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <script>
+      document.write(createFooter(true));
+    </script>
+
+    <script>
+      initializeArticleCarousel();
+    </script>
+  </body>
+</html>
