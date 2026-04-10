@@ -10,6 +10,7 @@ function createHeader(isArticlePage = false) {
         <li><a href="${basePath}projects.html">Projects</a></li>
         <li><a href="https://github.com" target="_blank">Github</a></li>
       </ul>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" onclick="var n=this.closest('nav');var open=n.classList.toggle('nav-open');this.textContent=open?'▲':'▼';this.setAttribute('aria-expanded',open);">▼</button>
     </nav>
   `;
 

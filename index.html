@@ -32,9 +32,9 @@
     <section class="hero">
       <h1>Welcome to Loop Projects</h1>
       <p class="hero-subtitle">
-        Explore cutting-edge dev experiments and cybersecurity research. Learn
+        Explore cutting-edge dev experiments and cybersecurity research.<span class="hero-subtitle-extra"> Learn
         security practices, penetration testing techniques, and modern
-        development workflows from real-world projects.
+        development workflows from real-world projects.</span>
       </p>
     </section>
 
@@ -44,44 +44,7 @@
 
         <div class="filter-section">
           <h3>Topic</h3>
-          <div class="filter-options">
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Web Security" />
-              <span>Web Security (3)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="API Security" />
-              <span>API Security (2)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Pentesting" />
-              <span>Pentesting (2)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="DevSecOps" />
-              <span>DevSecOps (2)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Cryptography" />
-              <span>Cryptography (1)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Network" />
-              <span>Network Security (2)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Architecture" />
-              <span>Architecture (2)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Secrets" />
-              <span>Secrets (1)</span>
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="topic" value="Mobile" />
-              <span>Mobile (1)</span>
-            </label>
-          </div>
+          <div class="filter-options" id="topic-filters"></div>
         </div>
 
         <a href="#" class="clear-filters">Clear Filters</a>
@@ -112,92 +75,49 @@
       </div>
     </section>
 
-    <section class="stats">
-      <h2>See Us Growing</h2>
-      <div class="carousel-container">
-        <div class="carousel" id="carousel" aria-placeholder="">
-          <div class="carousel-item">
-            <div class="stat-number">3</div>
-            <div class="stat-label">Cybersecurity Articles</div>
-          </div>
-          <div class="carousel-item">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Security Experiments</div>
-          </div>
-          <div class="carousel-item">
-            <div class="stat-number">0</div>
-            <div class="stat-label">YouTube Followers</div>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-controls">
-        <span
-          class="carousel-arrow"
-          role="button"
-          aria-label="Previous"
-          onclick="rotateCarousel(-120)"
-          >&lt;</span
-        >
-        <span
-          class="carousel-arrow"
-          role="button"
-          aria-label="Next"
-          onclick="rotateCarousel(120)"
-          >&gt;</span
-        >
-      </div>
-    </section>
 
     <script>
       document.write(createFooter(false));
     </script>
 
     <script>
-      // Carousel rotation
-      let currentRotation = 0;
-      const carousel = document.getElementById("carousel");
-
-      function rotateCarousel(degrees) {
-        // Pause auto-rotation temporarily
-        carousel.style.animation = "none";
-
-        currentRotation += degrees;
-        carousel.style.transform = `rotateY(${currentRotation}deg)`;
-
-        // Resume auto-rotation after 3 seconds
-        setTimeout(() => {
-          carousel.style.animation = "autoRotate 20s infinite linear";
-          carousel.style.animationDelay = `-${
-            ((currentRotation % 360) / 360) * 20
-          }s`;
-        }, 3000);
-      }
-
       // Article sorting functionality
       let articles = [...ARTICLES];
       let activeFilters = {
         topic: [],
       };
 
-      function updateFilterCounts() {
-        // Count articles by tag
+      function buildTopicFilters() {
         const tagCounts = {};
         articles.forEach((article) => {
           tagCounts[article.tag] = (tagCounts[article.tag] || 0) + 1;
         });
 
-        // Update each topic filter label
-        document
-          .querySelectorAll('.filter-option input[name="topic"]')
-          .forEach((checkbox) => {
-            const tag = checkbox.getAttribute("value");
-            const count = tagCounts[tag] || 0;
-            const label = checkbox.parentElement.querySelector("span");
-            const tagName = tag === "Network" ? "Network Security" : tag;
-            label.textContent = `${tagName} (${count})`;
-          });
+        const container = document.getElementById("topic-filters");
+        container.innerHTML = Object.entries(tagCounts)
+          .map(
+            ([tag, count]) => `
+            <label class="filter-option">
+              <input type="checkbox" name="topic" value="${tag}" />
+              <span>${tag} (${count})</span>
+            </label>`
+          )
+          .join("");
 
-        // Update total feed count
+        // Wire up checkbox events
+        container.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+          checkbox.addEventListener("change", function () {
+            const filterValue = this.value;
+            if (this.checked) {
+              if (!activeFilters.topic.includes(filterValue))
+                activeFilters.topic.push(filterValue);
+            } else {
+              activeFilters.topic = activeFilters.topic.filter((v) => v !== filterValue);
+            }
+            applyCurrentSort();
+          });
+        });
+
         updateFeedCount();
       }
 
@@ -261,29 +181,6 @@
         }
       }
 
-      // Add click handlers to filter checkboxes
-      document
-        .querySelectorAll('.filter-option input[type="checkbox"]')
-        .forEach((checkbox) => {
-          checkbox.addEventListener("change", function () {
-            const filterValue = this.getAttribute("value");
-
-            if (this.checked) {
-              // Add filter
-              if (!activeFilters.topic.includes(filterValue)) {
-                activeFilters.topic.push(filterValue);
-              }
-            } else {
-              // Remove filter
-              activeFilters.topic = activeFilters.topic.filter(
-                (val) => val !== filterValue
-              );
-            }
-
-            // Re-apply current sort with new filters
-            applyCurrentSort();
-          });
-        });
 
       // Clear filters button
       document
@@ -328,8 +225,8 @@
         });
       });
 
-      // Initialize: use articles from ARTICLES registry and render
-      updateFilterCounts();
+      // Initialize
+      buildTopicFilters();
       applyCurrentSort();
 
       // Smooth scroll for anchor links
