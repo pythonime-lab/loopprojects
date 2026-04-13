@@ -1411,6 +1411,10 @@ footer a:hover {
     display: none;
   }
 
+  .article-title {
+    flex: 1;
+  }
+
   .video-section {
     margin: 2rem auto;
     padding: 0 1rem;
