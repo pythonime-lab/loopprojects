@@ -241,7 +241,7 @@ nav {
 /* Hero Section */
 .hero {
   max-width: 1400px;
-  margin: 2rem auto;
+  margin: 0 auto;
   padding: 4rem 2rem 3rem;
   text-align: center;
   position: relative;
@@ -982,7 +982,8 @@ nav {
 /* Services Promo (homepage) */
 .services-promo {
   max-width: 1100px;
-  margin: 3rem auto 0;
+  margin: 0 auto 0;
+  margin-bottom: 4rem;
   padding: 0 2rem;
 }
 
