@@ -18,6 +18,33 @@
     <meta property="og:title" content="XSS Prevention in WordPress - Loop Projects" />
     <meta property="og:description" content="Learn how to protect your WordPress sites from Cross-Site Scripting attacks." />
 
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="XSS Prevention in WordPress - Loop Projects" />
+    <meta name="twitter:description" content="Learn how to protect your WordPress sites from Cross-Site Scripting attacks." />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "XSS Prevention in WordPress",
+      "datePublished": "2026-01-28",
+      "dateModified": "2026-01-28",
+      "author": {
+        "@type": "Organization",
+        "name": "Loop Projects",
+        "url": "https://pythonime-lab.github.io/loopprojects/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Loop Projects"
+      },
+      "description": "Learn how to protect your WordPress sites from Cross-Site Scripting attacks.",
+      "mainEntityOfPage": "https://pythonime-lab.github.io/loopprojects/articles/xss-prevention.html"
+    }
+    </script>
+
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="stylesheet" href="../styles.css" />
     <script src="../articles.js"></script>
@@ -56,8 +83,8 @@
         </div>
 
         <div class="share-buttons">
-          <a href="#" class="share-button">Twitter/X</a>
-          <a href="#" class="share-button">LinkedIn</a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpythonime-lab.github.io%2Floopprojects%2Farticles%2Fxss-prevention.html&text=XSS%20Prevention%20in%20WordPress" target="_blank" rel="noopener noreferrer" class="share-button">Twitter/X</a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpythonime-lab.github.io%2Floopprojects%2Farticles%2Fxss-prevention.html" target="_blank" rel="noopener noreferrer" class="share-button">LinkedIn</a>
         </div>
       </header>
 
@@ -294,28 +321,28 @@ update_option( 'my_option', $clean_data );</code></pre>
           <li>
             <a
               href="https://developer.wordpress.org/apis/security/"
-              target="_blank"
+              target="_blank" rel="noopener noreferrer"
               >WordPress Security APIs - Official Documentation</a
             >
           </li>
           <li>
             <a
               href="https://wordpress.org/support/article/hardening-wordpress/"
-              target="_blank"
+              target="_blank" rel="noopener noreferrer"
               >WordPress Codex - Hardening WordPress</a
             >
           </li>
           <li>
             <a
               href="https://owasp.org/www-community/attacks/xss/"
-              target="_blank"
+              target="_blank" rel="noopener noreferrer"
               >OWASP XSS Prevention Cheat Sheet</a
             >
           </li>
           <li>
             <a
               href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
-              target="_blank"
+              target="_blank" rel="noopener noreferrer"
               >MDN Web Docs - Content Security Policy</a
             >
           </li>
