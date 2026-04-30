@@ -7,6 +7,7 @@ function createHeader(isArticlePage = false) {
       <a href="${basePath}index.html" class="logo"><span class="brand-loop">Loop</span> <span class="brand-projects">Projects</span></a>
       <ul class="nav-links">
         <li><a href="${basePath}index.html">Blog</a></li>
+        <li><a href="${basePath}wordpress-security-services.html">Services</a></li>
         <li><a href="https://github.com/pythonime-lab?tab=repositories" target="_blank">Github</a></li>
       </ul>
       <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" onclick="var n=this.closest('nav');var open=n.classList.toggle('nav-open');this.textContent=open?'▲':'▼';this.setAttribute('aria-expanded',open);">▼</button>

@@ -18,6 +18,7 @@
 
   --text-light: #f8fafc; /* Crisp White */
   --text-muted: #94a3b8; /* Slate / Greyed out */
+  --text-sm: 0.82rem;
 
   /* Cyber Gradients */
   --gradient-2: linear-gradient(
@@ -976,6 +977,82 @@ nav {
 .carousel-arrow:hover {
   color: var(--accent);
   transform: translateY(-2px);
+}
+
+/* Services Promo (homepage) */
+.services-promo {
+  max-width: 1100px;
+  margin: 3rem auto 0;
+  padding: 0 2rem;
+}
+
+.services-promo-inner {
+  background:
+    linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(0,217,255,0.06) 100%);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.services-promo-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.services-promo-title {
+  font-size: 1.4rem;
+  color: var(--text-light);
+  margin: 0.25rem 0 0;
+}
+
+.services-promo-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.services-promo-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.services-promo-cta {
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-family: "Space Mono", monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--primary);
+  color: #fff;
+  transition: all 0.3s;
+}
+
+.services-promo-cta:hover {
+  background: #9333ea;
+  transform: translateY(-2px);
+}
+
+.services-promo-cta--outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid rgba(168,85,247,0.5);
+}
+
+.services-promo-cta--outline:hover {
+  background: rgba(168,85,247,0.1);
 }
 
 /* Feed Container with Sidebar */
