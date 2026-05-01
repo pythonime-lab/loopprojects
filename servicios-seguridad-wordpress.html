@@ -10,6 +10,23 @@
 
       gtag('config', 'AW-18130692145');
     </script>
+    <!-- Event snippet for Submit lead forms conversion page -->
+    <script>
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18130692145/VpvMCJr2v6UcELHQscVD',
+          'value': 1.0,
+          'currency': 'EUR',
+          'event_callback': callback
+      });
+      return false;
+    }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Servicios de Seguridad para Sitios Web WordPress - Loop Projects</title>
@@ -23,7 +40,9 @@
     <meta property="og:url" content="https://pythonime-lab.github.io/loopprojects/servicios-seguridad-wordpress.html" />
     <meta property="og:title" content="Servicios de Seguridad para Sitios Web WordPress - Loop Projects" />
     <meta property="og:description" content="Limpieza profesional de malware WordPress y protección avanzada. Chequeo de seguridad desde €99, Limpieza de malware desde €179, Limpieza + Protección desde €299." />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://pythonime-lab.github.io/loopprojects/images/wordpress-malware-removal-hacked-website.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://pythonime-lab.github.io/loopprojects/images/wordpress-malware-removal-hacked-website.jpg" />
     <meta name="twitter:title" content="Servicios de Seguridad para Sitios Web WordPress - Loop Projects" />
     <meta name="twitter:description" content="Limpieza profesional de malware WordPress y protección avanzada. Especialista en ciberseguridad certificado." />
     <script type="application/ld+json">
@@ -1120,7 +1139,7 @@
             <textarea id="problema" name="problema" rows="5" placeholder="Describe los síntomas: redireccionamientos, avisos de Google, contenido extraño, etc." required></textarea>
           </div>
 
-          <button type="submit" class="form-submit">Enviar consulta</button>
+          <button type="submit" class="form-submit" onclick="gtag_report_conversion()">Enviar consulta</button>
           <p class="response-promise">Respuesta en menos de 48 horas</p>
         </form>
       </div>
