@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /legal.html
+Disallow: /privacy.html
+Disallow: /gracias.html
+Disallow: /thanks.html
 
 Sitemap: https://pythonime-lab.github.io/loopprojects/sitemap.xml
