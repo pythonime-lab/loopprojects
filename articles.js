@@ -1,6 +1,12 @@
 // Centralized article registry for Loop Projects
 const ARTICLES = [
   {
+    url: "articles/wp-date-query-sql-injection.html",
+    title: "WP_Date_Query SQL Injection: The WordPress Core Vulnerability",
+    tag: "WordPress Security",
+    date: "2026.5.2",
+  },
+  {
     url: "articles/xss-prevention.html",
     title: "XSS Prevention in WordPress",
     tag: "Web Security",

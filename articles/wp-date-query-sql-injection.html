@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18130692145"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-18130692145');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WP_Date_Query SQL Injection: The WordPress Core Vulnerability - Loop Projects</title>
+    <meta
+      name="description"
+      content="A deep dive into the WP_Date_Query SQL injection vulnerability patched in WordPress 6.0.3. Learn what went wrong, how it was fixed, and how to protect your plugins."
+    />
+    <!-- Canonical -->
+    <link rel="canonical" href="https://pythonime-lab.github.io/loopprojects/articles/wp-date-query-sql-injection.html" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Loop Projects" />
+    <meta property="og:url" content="https://pythonime-lab.github.io/loopprojects/articles/wp-date-query-sql-injection.html" />
+    <meta property="og:title" content="WP_Date_Query SQL Injection: The WordPress Core Vulnerability - Loop Projects" />
+    <meta property="og:description" content="A deep dive into the WP_Date_Query SQL injection vulnerability patched in WordPress 6.0.3. Learn what went wrong, how it was fixed, and how to protect your plugins." />
+
+    <!-- Twitter Card -->
+    <meta property="og:image" content="https://pythonime-lab.github.io/loopprojects/images/wordpress-malware-removal-hacked-website.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://pythonime-lab.github.io/loopprojects/images/wordpress-malware-removal-hacked-website.jpg" />
+    <meta name="twitter:title" content="WP_Date_Query SQL Injection: The WordPress Core Vulnerability - Loop Projects" />
+    <meta name="twitter:description" content="A deep dive into the WP_Date_Query SQL injection vulnerability patched in WordPress 6.0.3. Learn what went wrong, how it was fixed, and how to protect your plugins." />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "WP_Date_Query SQL Injection: The WordPress Core Vulnerability",
+      "datePublished": "2026-05-02",
+      "dateModified": "2026-05-02",
+      "author": {
+        "@type": "Organization",
+        "name": "Loop Projects",
+        "url": "https://pythonime-lab.github.io/loopprojects/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Loop Projects"
+      },
+      "description": "A deep dive into the WP_Date_Query SQL injection vulnerability patched in WordPress 6.0.3. Learn what went wrong, how it was fixed, and how to protect your plugins.",
+      "mainEntityOfPage": "https://pythonime-lab.github.io/loopprojects/articles/wp-date-query-sql-injection.html"
+    }
+    </script>
+
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../styles.css?v=2" />
+    <script src="../articles.js?v=2"></script>
+    <script src="../carousel.js?v=2"></script>
+    <script src="../header.js?v=2"></script>
+    <script src="../footer.js?v=2"></script>
+  </head>
+  <body>
+    <div class="bg-animation">
+      <div class="bg-circle"></div>
+      <div class="bg-circle"></div>
+    </div>
+
+    <script>
+      document.write(createHeader(true));
+    </script>
+
+    <article>
+      <header class="article-header">
+        <h1>WP_Date_Query SQL Injection: The WordPress Core Vulnerability</h1>
+
+        <div class="article-metadata">
+          <div class="metadata-item">
+            <span>Date:</span>
+            <span>2026.5.2</span>
+          </div>
+          <div class="metadata-item">
+            <span>Reading time:</span>
+            <span>12 min read</span>
+          </div>
+        </div>
+
+        <div class="article-tags">
+          <span class="article-tag">WordPress Security</span>
+          <span class="article-tag">SQL Injection</span>
+          <span class="article-tag">WP_Date_Query</span>
+          <span class="article-tag">WordPress Core</span>
+        </div>
+
+        <div class="share-buttons">
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpythonime-lab.github.io%2Floopprojects%2Farticles%2Fwp-date-query-sql-injection.html&text=WP_Date_Query%20SQL%20Injection%3A%20The%20WordPress%20Core%20Vulnerability" target="_blank" rel="noopener noreferrer" class="share-button">Twitter/X</a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fpythonime-lab.github.io%2Floopprojects%2Farticles%2Fwp-date-query-sql-injection.html" target="_blank" rel="noopener noreferrer" class="share-button">LinkedIn</a>
+        </div>
+      </header>
+
+      <div class="article-content">
+        <h2>What Is WP_Date_Query?</h2>
+
+        <p>
+          <code>WP_Date_Query</code> is a WordPress core helper class introduced
+          to allow developers to filter post and content queries by date. It is
+          used internally by <code>WP_Query</code> and is widely used in plugins
+          and themes to retrieve posts within a given date range — for example,
+          "show all posts published this month" or "find events between two
+          dates."
+        </p>
+
+        <p>
+          Because it generates raw SQL <code>WHERE</code> subclauses and is
+          frequently exposed to user-controlled input, it has historically been
+          a target for SQL injection. In October 2022, security researcher
+          Michael Mazzolini disclosed a critical flaw in <code>WP_Date_Query</code>
+          that affected every WordPress installation from version 3.7 up to and
+          including 6.0.2.
+        </p>
+
+        <div class="warning-box">
+          <strong>Affected Versions:</strong> WordPress 3.7 through 6.0.2.<br />
+          <strong>Fixed In:</strong> WordPress 6.0.3 (and backported to all
+          supported branches: 5.9.5, 5.8.6, 5.7.8, 5.6.10, 5.5.11, 5.4.12,
+          5.3.14, 5.2.17, 5.1.15, 5.0.18, 4.9.22, 4.8.21, 4.7.25, 4.6.25,
+          4.5.28, 4.4.29, 4.3.30, 4.2.34, 4.1.37, 4.0.37, 3.9.38, 3.8.40,
+          3.7.40), released October 17, 2022.<br />
+          <strong>Source:</strong>
+          <a href="https://wordpress.org/news/2022/10/wordpress-6-0-3-security-release/" target="_blank" rel="noopener noreferrer">WordPress 6.0.3 Security Release – WordPress.org</a>
+        </div>
+
+        <h2>The Vulnerability: Improper Sanitization of the <code>relation</code> Parameter</h2>
+
+        <p>
+          The root cause was a missing validation step in the
+          <code>sanitize_query()</code> method of <code>WP_Date_Query</code>.
+          When building compound date conditions, the class accepts a
+          <code>relation</code> key that controls how multiple date clauses are
+          joined in SQL — either <code>AND</code> or <code>OR</code>. Before the
+          fix, the code only checked whether the value was explicitly
+          <code>'OR'</code>; any other string was silently passed through as
+          <code>'AND'</code> without being stripped of SQL metacharacters.
+        </p>
+
+        <p>
+          According to the
+          <a href="https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-core/wordpress-core-603-sql-injection-via-wp-date-query" target="_blank" rel="noopener noreferrer">Wordfence threat intelligence advisory</a>,
+          the vulnerability was classified as <strong>CWE-89</strong> (Improper
+          Neutralization of Special Elements used in an SQL Command) with a
+          Wordfence CVSS score of <strong>8.8 (High)</strong>. WPScan assigned
+          CVSS 4.0 and Patchstack assigned CVSS 3.7 — the difference reflects
+          each organization's assessment of exploitability under real-world
+          conditions.
+        </p>
+
+        <h3>The Vulnerable Code Path</h3>
+
+        <p>
+          The following simplified reconstruction shows what the vulnerable
+          <code>sanitize_query()</code> looked like before the patch. The key
+          problem is that <code>$relation</code> was only tested for the value
+          <code>'OR'</code>; any other value — including payloads with
+          injected SQL — was accepted without further validation:
+        </p>
+
+        <pre><code>// VULNERABLE – class-wp-date-query.php (WordPress < 6.0.3)
+public function sanitize_query( $queries ) {
+    foreach ( $queries as $key => $query ) {
+        if ( 'relation' === $key ) {
+            // Only checks for 'OR' — anything else passes through untouched
+            $queries['relation'] = strtoupper( $query ) === 'OR' ? 'OR' : 'AND';
+        }
+        // ...
+    }
+    return $queries;
+}</code></pre>
+
+        <p>
+          Because the comparison used <code>strtoupper( $query )</code> and
+          the result was just defaulted to <code>'AND'</code>, the
+          <code>relation</code> value itself was never written into the final
+          SQL. However, in certain execution paths where the raw value was used
+          before this check ran — or where plugins used the value directly
+          without going through the sanitizer — malicious SQL fragments could
+          reach the query.
+        </p>
+
+        <h3>Exploitation Context</h3>
+
+        <p>
+          The vulnerability is most dangerous when a plugin or theme passes
+          user-controlled input directly into the <code>date_query</code>
+          argument of <code>WP_Query</code> without first validating the
+          <code>relation</code> key. A simplified exploit would look like this:
+        </p>
+
+        <pre><code>// DANGEROUS – Plugin code that passes raw user input into date_query
+$args = [
+    'post_type'  => 'event',
+    'date_query' => [
+        'relation' => sanitize_text_field( $_GET['rel'] ), // insufficient!
+        [
+            'after' => '2024-01-01',
+        ],
+    ],
+];
+$query = new WP_Query( $args );
+// If $_GET['rel'] = "AND (SELECT 1 FROM (SELECT SLEEP(5))a)-- "
+// and sanitize_text_field() does not strip SQL metacharacters,
+// the injected fragment can reach the final SQL statement.</code></pre>
+
+        <div class="info-box">
+          <strong>Important context:</strong> <code>sanitize_text_field()</code>
+          removes HTML tags but does <em>not</em> protect against SQL injection.
+          Always use the database-level defenses described below.
+        </div>
+
+        <h2>The Fix: A Dedicated <code>sanitize_relation()</code> Method</h2>
+
+        <p>
+          The patch, committed to the WordPress develop repository as
+          <a href="https://github.com/WordPress/wordpress-develop/commit/d815d2e8b2a7c2be6694b49276ba3eee5166c21f" target="_blank" rel="noopener noreferrer">commit d815d2e</a>,
+          introduced a new private method that acts as a strict allowlist:
+        </p>
+
+        <pre><code>// FIXED – class-wp-date-query.php (WordPress >= 6.0.3)
+public function sanitize_relation( $relation ) {
+    if ( 'OR' === strtoupper( $relation ) ) {
+        return 'OR';
+    } else {
+        return 'AND';
+    }
+}</code></pre>
+
+        <p>
+          This looks similar to the old logic but the critical difference is
+          that <code>sanitize_relation()</code> is now called consistently every
+          time the <code>relation</code> value is used to build SQL, not just
+          during initial parsing. The return value is always either the literal
+          string <code>'OR'</code> or the literal string <code>'AND'</code> —
+          no other value can reach the query.
+        </p>
+
+        <p>
+          The
+          <a href="https://patchstack.com/articles/wordpress-6-0-3-security-release-summary/" target="_blank" rel="noopener noreferrer">Patchstack security release summary</a>
+          confirms: <em>"WP does not properly sanitize the relation passed to
+          WP_Date_Query, which could lead to SQL injection"</em> and credits
+          the discovery to Michael Mazzolini.
+        </p>
+
+        <h2>How WP_Date_Query Builds SQL</h2>
+
+        <p>
+          Understanding the internals helps you write safer plugin code. When
+          you pass a <code>date_query</code> argument to <code>WP_Query</code>,
+          WordPress instantiates <code>WP_Date_Query</code> and calls
+          <code>get_sql()</code>, which assembles the
+          <code>WHERE</code> clause fragment:
+        </p>
+
+        <pre><code>// What WP_Date_Query generates for a compound date query
+$args = [
+    'date_query' => [
+        'relation' => 'OR',
+        [
+            'after'  => 'January 1st, 2024',
+            'before' => 'December 31st, 2024',
+        ],
+        [
+            'after' => 'January 1st, 2026',
+        ],
+    ],
+];
+
+// Resulting SQL fragment (simplified):
+// WHERE (
+//   (post_date > '2024-01-01' AND post_date < '2024-12-31')
+//   OR
+//   (post_date > '2026-01-01')
+// )</code></pre>
+
+        <p>
+          The <code>relation</code> value (<code>'OR'</code> above) is placed
+          verbatim between the subclauses. This is exactly why unchecked values
+          are dangerous — anything written there ends up directly in the SQL
+          string.
+        </p>
+
+        <h2>Safe Usage of WP_Date_Query in Plugin Development</h2>
+
+        <h3>1. Allowlist the <code>relation</code> Parameter</h3>
+
+        <p>
+          Even on WordPress 6.0.3+, defense in depth means you should
+          validate input yourself before it ever reaches core:
+        </p>
+
+        <pre><code>// SAFE – validate relation before passing to WP_Query
+function get_events_by_date( $relation = 'AND' ) {
+    // Strict allowlist — only 'AND' or 'OR' are valid
+    $relation = strtoupper( $relation );
+    if ( ! in_array( $relation, [ 'AND', 'OR' ], true ) ) {
+        $relation = 'AND';
+    }
+
+    $args = [
+        'post_type'  => 'event',
+        'date_query' => [
+            'relation' => $relation,
+            [
+                'after'     => '1 month ago',
+                'inclusive' => true,
+            ],
+        ],
+    ];
+
+    return new WP_Query( $args );
+}</code></pre>
+
+        <h3>2. Never Pass Raw <code>$_GET</code> / <code>$_POST</code> Values</h3>
+
+        <pre><code>// DANGEROUS – raw user input directly in date_query
+$args = [
+    'date_query' => [
+        'relation' => $_GET['relation'],   // never do this
+        'column'   => $_GET['column'],     // never do this either
+        [
+            'year' => $_GET['year'],       // needs intval()
+        ],
+    ],
+];
+
+// SAFE – sanitize every user-supplied value individually
+$allowed_relations = [ 'AND', 'OR' ];
+$relation = strtoupper( sanitize_key( $_GET['relation'] ?? 'AND' ) );
+if ( ! in_array( $relation, $allowed_relations, true ) ) {
+    $relation = 'AND';
+}
+
+$year = absint( $_GET['year'] ?? date( 'Y' ) );
+
+$args = [
+    'date_query' => [
+        'relation' => $relation,
+        [
+            'year' => $year,
+        ],
+    ],
+];</code></pre>
+
+        <h3>3. Validate the <code>column</code> Parameter</h3>
+
+        <p>
+          The <code>column</code> key in <code>WP_Date_Query</code> specifies
+          which database column to filter on. Accepting this value from user
+          input is equally risky because column names are not quoted by
+          <code>$wpdb->prepare()</code>:
+        </p>
+
+        <pre><code>// SAFE – allowlist valid date columns
+$allowed_columns = [
+    'post_date',
+    'post_date_gmt',
+    'post_modified',
+    'post_modified_gmt',
+];
+
+$column = sanitize_key( $_GET['column'] ?? 'post_date' );
+if ( ! in_array( $column, $allowed_columns, true ) ) {
+    $column = 'post_date';
+}
+
+$args = [
+    'date_query' => [
+        [
+            'column' => $column,
+            'after'  => '2024-01-01',
+        ],
+    ],
+];</code></pre>
+
+        <h3>4. Use <code>$wpdb->prepare()</code> for Custom Date Queries</h3>
+
+        <p>
+          When <code>WP_Date_Query</code> cannot cover your use case and you
+          need to write raw SQL, always use prepared statements. According to
+          the
+          <a href="https://developer.wordpress.org/reference/classes/wp_date_query/" target="_blank" rel="noopener noreferrer">official WP_Date_Query class reference</a>,
+          the class is designed as a helper, not a replacement for good
+          parameterized query practices:
+        </p>
+
+        <pre><code>// SAFE – raw date query using $wpdb->prepare()
+global $wpdb;
+
+$start_date = sanitize_text_field( $_GET['start'] ?? '' );
+$end_date   = sanitize_text_field( $_GET['end']   ?? '' );
+
+// Validate that inputs are actual dates before using them
+if ( ! strtotime( $start_date ) || ! strtotime( $end_date ) ) {
+    return [];
+}
+
+$results = $wpdb->get_results(
+    $wpdb->prepare(
+        "SELECT ID, post_title FROM $wpdb->posts
+         WHERE post_type   = %s
+           AND post_status = %s
+           AND post_date BETWEEN %s AND %s
+         ORDER BY post_date DESC",
+        'event',
+        'publish',
+        $start_date,
+        $end_date
+    )
+);</code></pre>
+
+        <h2>Checking Whether Your Site Is Patched</h2>
+
+        <p>
+          The simplest check is your WordPress version. Log in to your dashboard
+          and go to <strong>Dashboard → Updates</strong>. If you are running
+          WordPress 6.0.3 or later you have the fix. According to the
+          <a href="https://wpscan.com/vulnerability/1da03338-557f-4cb6-9a65-3379df4cce47/" target="_blank" rel="noopener noreferrer">WPScan vulnerability record</a>,
+          all branches back to 3.7 received a backported patch — there is no
+          supported version of WordPress where this remains unpatched.
+        </p>
+
+        <p>
+          If you maintain a plugin that uses <code>date_query</code> arguments,
+          audit every place where user-supplied data feeds into the
+          <code>relation</code> or <code>column</code> keys. Even on a fully
+          patched WordPress, your plugin can reintroduce the vulnerability if
+          it passes unsanitized values.
+        </p>
+
+        <h2>Lessons for Plugin and Theme Developers</h2>
+
+        <ul>
+          <li>
+            <strong>Trust nothing from the browser:</strong> <code>$_GET</code>,
+            <code>$_POST</code>, and <code>$_REQUEST</code> are attacker-controlled.
+            Validate every key and value against an explicit allowlist before
+            using it in any query argument.
+          </li>
+          <li>
+            <strong>Allowlists beat blocklists:</strong> Trying to remove
+            dangerous characters from a string is fragile. Checking that the
+            value is exactly <code>'AND'</code> or <code>'OR'</code> is
+            unbreakable.
+          </li>
+          <li>
+            <strong><code>sanitize_text_field()</code> is not SQL-safe:</strong>
+            It strips HTML and extra whitespace but does not prevent SQL
+            injection. Use it for display-safe strings; use allowlists or
+            <code>$wpdb->prepare()</code> for database safety.
+          </li>
+          <li>
+            <strong>Defense in depth:</strong> Even after WordPress patched
+            core, a plugin that pre-processes and re-validates the same data
+            would have been safe regardless. Don't rely solely on the framework
+            catching your mistakes.
+          </li>
+          <li>
+            <strong>Keep WordPress and plugins updated:</strong> This
+            vulnerability existed in core from version 3.7 (released 2013)
+            until 6.0.3 (2022) — almost a decade. Sites that stayed up to date
+            received the patch the day it was released.
+          </li>
+        </ul>
+
+        <h2>Conclusion</h2>
+
+        <p>
+          The <code>WP_Date_Query</code> SQL injection vulnerability is a
+          textbook example of how a small missing validation — one sanitizer
+          method not called consistently enough — can create a high-severity
+          attack surface in a codebase used by hundreds of millions of websites.
+          The fix itself was equally small: a strict allowlist that allows only
+          <code>'AND'</code> or <code>'OR'</code> to reach the final SQL string.
+        </p>
+
+        <p>
+          If you build plugins or themes that accept date range inputs from
+          users, apply the same principle: validate the <code>relation</code>
+          and <code>column</code> parameters against an explicit allowlist,
+          use <code>absint()</code> for integer date components, and fall back
+          to <code>$wpdb->prepare()</code> whenever <code>WP_Date_Query</code>
+          is not sufficient. Patch your WordPress installation if you have not
+          already — this is a zero-effort, high-impact step that closes the
+          vulnerability entirely.
+        </p>
+      </div>
+
+      <div class="resources-section">
+        <h3>Sources &amp; Further Reading</h3>
+        <ul class="resources-list">
+          <li>
+            <a href="https://wordpress.org/news/2022/10/wordpress-6-0-3-security-release/" target="_blank" rel="noopener noreferrer">
+              WordPress 6.0.3 Security Release — WordPress.org (official advisory)
+            </a>
+          </li>
+          <li>
+            <a href="https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-core/wordpress-core-603-sql-injection-via-wp-date-query" target="_blank" rel="noopener noreferrer">
+              WordPress Core &lt; 6.0.3 – SQL Injection via WP_Date_Query — Wordfence Intelligence (CVSS 8.8)
+            </a>
+          </li>
+          <li>
+            <a href="https://wpscan.com/vulnerability/1da03338-557f-4cb6-9a65-3379df4cce47/" target="_blank" rel="noopener noreferrer">
+              WP &lt; 6.0.3 – SQLi in WP_Date_Query — WPScan Vulnerability Database
+            </a>
+          </li>
+          <li>
+            <a href="https://patchstack.com/database/vulnerability/wordpress/wordpress-core-6-0-2-sql-injection-sqli-vulnerability" target="_blank" rel="noopener noreferrer">
+              SQL Injection in WordPress Core 6.0.2 — Patchstack Database
+            </a>
+          </li>
+          <li>
+            <a href="https://patchstack.com/articles/wordpress-6-0-3-security-release-summary/" target="_blank" rel="noopener noreferrer">
+              WordPress 6.0.3 Security Release Summary — Patchstack
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/WordPress/wordpress-develop/commit/d815d2e8b2a7c2be6694b49276ba3eee5166c21f" target="_blank" rel="noopener noreferrer">
+              Fix Commit: "Query: Validate relation in WP_Date_Query" — WordPress GitHub
+            </a>
+          </li>
+          <li>
+            <a href="https://developer.wordpress.org/reference/classes/wp_date_query/" target="_blank" rel="noopener noreferrer">
+              WP_Date_Query Class Reference — WordPress Developer Resources
+            </a>
+          </li>
+          <li>
+            <a href="https://developer.wordpress.org/apis/security/" target="_blank" rel="noopener noreferrer">
+              WordPress Security APIs — Official Developer Documentation
+            </a>
+          </li>
+          <li>
+            <a href="https://patchstack.com/articles/sql-injection/" target="_blank" rel="noopener noreferrer">
+              SQL Injection in WordPress — Everything You Need To Know (Patchstack)
+            </a>
+          </li>
+          <li>
+            <a href="https://owasp.org/www-community/attacks/SQL_Injection" target="_blank" rel="noopener noreferrer">
+              OWASP SQL Injection Documentation
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="related-articles">
+        <h2>Latest Articles</h2>
+        <div class="carousel-wrapper">
+          <div class="articles-carousel" id="relatedCarousel">
+            <!-- Generated by JavaScript from articles.js -->
+          </div>
+          <span class="pixel-rain left" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+          <span class="pixel-rain right" aria-hidden="true">
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+            <span class="pixel"></span>
+          </span>
+        </div>
+        <div class="carousel-nav">
+          <button class="carousel-nav-btn prev" onclick="scrollCarousel(-1)">
+            ←
+          </button>
+          <button class="carousel-nav-btn next" onclick="scrollCarousel(1)">
+            →
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <script>
+      document.write(createFooter(true));
+    </script>
+
+    <script>
+      initializeArticleCarousel();
+    </script>
+  </body>
+</html>
